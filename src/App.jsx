@@ -161,7 +161,7 @@ function Boids({
             if (debug && other.isMain && !boid.isMain) {
               ref.current.setColorAt(index, new THREE.Color(0x000000));
             }
-            if (distance < visualRange) {
+            if (distance > 0 && distance < visualRange) {
               if (debug && other.isMain && !boid.isMain) {
                 ref.current.setColorAt(index, new THREE.Color(0x00ff00));
               }
@@ -207,7 +207,7 @@ function Boids({
       if (debug && other.isMain && !boid.isMain) {
         ref.current.setColorAt(index, new THREE.Color(0x000000));
       }
-      if (distance < visualRange) {
+      if (distance > 0 && distance < visualRange) {
         if (debug && other.isMain && !boid.isMain) {
           ref.current.setColorAt(index, new THREE.Color(0x00ff00));
         }
