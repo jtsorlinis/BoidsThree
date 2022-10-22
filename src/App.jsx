@@ -354,6 +354,25 @@ function ResetCamera({ size = 5, _3D = true }) {
   });
 }
 
+function Grid({ size = 3, _3D = true, debug }) {
+  if (!debug || _3D) {
+    return <></>;
+  }
+  return (
+    <gridHelper
+      args={[50, 100]}
+      rotation={new THREE.Euler(-Math.PI / 2, 0, 0)}
+      position={
+        new THREE.Vector3(
+          (Math.floor(size * 12) % 2) / 4,
+          (Math.floor(size * 6) % 2) / 4,
+          0
+        )
+      }
+    />
+  );
+}
+
 function App() {
   const { numBoids, useSpatialGrid, debug, _3D } = useControls({
     numBoids: {
@@ -363,8 +382,8 @@ function App() {
       step: 1,
     },
     useSpatialGrid: true,
-    debug: false,
     _3D: true,
+    debug: false,
   });
   const { cohesion, seperation, alignment } = useControls("Params", {
     cohesion: { value: 1, min: 0, max: 3, step: 0.01 },
@@ -380,6 +399,7 @@ function App() {
         shadows
         camera={{ fov: 60, near: 0.1, far: 1000, position: [0, 0, 0] }}
       >
+        <Grid size={size} _3D={_3D} debug={debug} />
         <Stats showPanel={0} className="stats" />
         <OrbitControls
           enablePan={false}
