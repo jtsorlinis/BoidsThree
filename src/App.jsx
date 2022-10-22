@@ -14,6 +14,7 @@ function Boids({
   alignmentFactor,
   useGrid,
   debug,
+  _3D,
 }) {
   const ref = useRef();
   const mesh = new THREE.Object3D();
@@ -26,9 +27,9 @@ function Boids({
   const visualRange = 0.5;
   const minDistance = 0.15;
 
-  const xBound = size - edgeMargin;
-  const yBound = size / 2 - edgeMargin;
-  const zBound = size - edgeMargin;
+  const xBound = _3D ? size - edgeMargin : size * 3;
+  const yBound = _3D ? size / 2 - edgeMargin : size * 1.5;
+  const zBound = _3D ? size - edgeMargin : 0;
 
   const boids = useRef([]);
   const boidsSorted = useRef([]);
@@ -293,6 +294,9 @@ function Boids({
       keepInBounds(boid, delta);
 
       // Update boids
+      if (!_3D) {
+        boid.position.z = 0;
+      }
       boid.position.addScaledVector(boid.velocity, delta);
       mesh.position.set(boid.position.x, boid.position.y, boid.position.z);
       let rot = new THREE.Quaternion();
@@ -321,12 +325,15 @@ function Boids({
       args={[null, null, count]}
     >
       <coneGeometry args={[boidScale / 3, boidScale]} />
-      <meshStandardMaterial />
+      {_3D ? <meshStandardMaterial /> : <meshBasicMaterial />}
     </instancedMesh>
   );
 }
 
-function Plane({ size = 3 }) {
+function Plane({ size = 3, _3D = true }) {
+  if (!_3D) {
+    return <></>;
+  }
   return (
     <mesh
       receiveShadow
@@ -339,16 +346,16 @@ function Plane({ size = 3 }) {
   );
 }
 
-function ResetCamera({ size = 5 }) {
+function ResetCamera({ size = 5, _3D = true }) {
   useThree(({ camera }) => {
     camera.position.x = 0;
     camera.position.y = 0;
-    camera.position.z = size * 2.1;
+    camera.position.z = size * (_3D ? 2.1 : 3.0);
   });
 }
 
 function App() {
-  const { numBoids, useSpatialGrid, debug } = useControls({
+  const { numBoids, useSpatialGrid, debug, _3D } = useControls({
     numBoids: {
       value: 32,
       min: 32,
@@ -357,6 +364,7 @@ function App() {
     },
     useSpatialGrid: true,
     debug: false,
+    _3D: true,
   });
   const { cohesion, seperation, alignment } = useControls("Params", {
     cohesion: { value: 1, min: 0, max: 3, step: 0.01 },
@@ -373,8 +381,12 @@ function App() {
         camera={{ fov: 60, near: 0.1, far: 1000, position: [0, 0, 0] }}
       >
         <Stats showPanel={0} className="stats" />
-        <OrbitControls enablePan={false} enableZoom={false} />
-        <ResetCamera size={size} />
+        <OrbitControls
+          enablePan={false}
+          enableZoom={false}
+          enableRotate={_3D}
+        />
+        <ResetCamera size={size} _3D={_3D} />
         <color attach="background" args={["#87CEEB"]} />
         <ambientLight intensity={0.4} color="#ffffff" />
         {/* <hemisphereLight intensity={0.8} color="#87CEEB" /> */}
@@ -388,8 +400,9 @@ function App() {
           alignmentFactor={alignment}
           useGrid={useSpatialGrid}
           debug={debug}
+          _3D={_3D}
         />
-        <Plane size={size} />
+        <Plane size={size} _3D={_3D} />
       </Canvas>
     </div>
   );
