@@ -299,12 +299,11 @@ function Boids({
       }
       boid.position.addScaledVector(boid.velocity, delta);
       mesh.position.set(boid.position.x, boid.position.y, boid.position.z);
-      let rot = new THREE.Quaternion();
-      rot.setFromUnitVectors(
-        THREE.Object3D.DefaultUp,
-        boid.velocity.clone().normalize()
-      );
-      mesh.setRotationFromQuaternion(rot);
+      let axis = new THREE.Vector3()
+        .crossVectors(THREE.Object3D.DefaultUp, boid.velocity)
+        .normalize();
+      let angle = THREE.Object3D.DefaultUp.angleTo(boid.velocity);
+      mesh.setRotationFromAxisAngle(axis, angle);
       mesh.updateMatrix();
       ref.current.setMatrixAt(i, mesh.matrix);
     }
