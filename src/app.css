@@ -1,10 +1,14 @@
-html, body {
+html,
+body {
   margin: 0 !important;
   padding: 0 !important;
 }
 
 .stats {
-  top: 10px!important;
-  right: 300px !important;
-  left: auto !important;
+  position: fixed;
+  z-index: 10000;
+  top: 80px;
+  right: 50px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, "Roboto Mono", monospace;
+  color: white;
 }

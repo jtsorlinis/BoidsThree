@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { useRef, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, Stats } from "@react-three/drei";
+import { OrbitControls } from "@react-three/drei";
 import { useControls, Leva } from "leva";
 import "./app.css";
 
@@ -260,6 +260,8 @@ function Boids({
   }
 
   useFrame((state, delta) => {
+    document.getElementById("fpsText").innerHTML =
+      "FPS: " + (1 / delta).toFixed();
     // Spatial grid
     if (useGrid) {
       clearGrid();
@@ -389,13 +391,15 @@ function App() {
 
   return (
     <div id="canvas-container" style={{ width: "100vw", height: "100vh" }}>
+      <span id="fpsText" className="stats">
+        FPS: 00
+      </span>
       <Leva titleBar={false} hideCopyButton />
       <Canvas
         shadows
         camera={{ fov: 60, near: 0.1, far: 1000, position: [0, 0, 0] }}
       >
         <Grid size={size} _3D={_3D} debug={debug} />
-        <Stats showPanel={0} className="stats" />
         <OrbitControls
           enablePan={false}
           enableZoom={false}
