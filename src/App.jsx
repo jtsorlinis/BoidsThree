@@ -36,7 +36,6 @@ function Boids({
 
   // Spatial grid
   const grid = useRef([]);
-  const gridCounts = useRef([]);
   const gridOffsets = useRef([]);
 
   const gridCellSize = visualRange;
@@ -95,7 +94,6 @@ function Boids({
 
   function clearGrid() {
     for (let i = 0; i < gridTotalCells; i++) {
-      gridCounts.current[i] = 0;
       gridOffsets.current[i] = 0;
     }
   }
@@ -114,23 +112,21 @@ function Boids({
     return { x, y, z };
   }
 
-  function getgridIDbyLoc(x, y, z) {
+  function getgridIDbyLoc({ x, y, z }) {
     return gridDimY * gridDimX * z + gridDimX * y + x;
   }
 
   function updateGrid() {
     for (let i = 0; i < count; i++) {
       let id = getGridID(boids.current[i]);
-      grid.current[i] = { x: id, y: gridCounts.current[id] };
-      gridCounts.current[id]++;
+      grid.current[i] = { x: id, y: gridOffsets.current[id] };
+      gridOffsets.current[id]++;
     }
   }
 
   function generateGridOffsets() {
-    gridOffsets.current[0] = gridCounts.current[0];
     for (let i = 1; i < gridTotalCells; i++) {
-      gridOffsets.current[i] =
-        gridOffsets.current[i - 1] + gridCounts.current[i];
+      gridOffsets.current[i] += gridOffsets.current[i - 1];
     }
   }
 
@@ -150,29 +146,29 @@ function Boids({
     let neighbours = 0;
 
     const gridXYZ = getGridLocation(boid);
-    for (let z = gridXYZ.z - 1; z <= gridXYZ.z + 1; z++) {
-      for (let y = gridXYZ.y - 1; y <= gridXYZ.y + 1; y++) {
-        for (let x = gridXYZ.x - 1; x <= gridXYZ.x + 1; x++) {
-          let gridCell = getgridIDbyLoc(x, y, z);
-          let end = gridOffsets.current[gridCell];
-          let start = end - gridCounts.current[gridCell];
-          for (let i = start; i < end; i++) {
-            const other = boidsSorted.current[i];
-            const distance = boid.position.distanceTo(other.position);
+    const gridCell = getgridIDbyLoc(gridXYZ);
+    const zStep = gridDimX * gridDimY;
+
+    for (let z = gridCell - zStep; z <= gridCell + zStep; z += zStep) {
+      for (let y = z - gridDimX; y <= z + gridDimX; y += gridDimX) {
+        let start = gridOffsets.current[y - 2];
+        let end = gridOffsets.current[y + 1];
+        for (let i = start; i < end; i++) {
+          const other = boidsSorted.current[i];
+          const distance = boid.position.distanceTo(other.position);
+          if (debug && other.isMain && !boid.isMain) {
+            ref.current.setColorAt(index, new THREE.Color(0x000000));
+          }
+          if (distance > 0 && distance < visualRange) {
             if (debug && other.isMain && !boid.isMain) {
-              ref.current.setColorAt(index, new THREE.Color(0x000000));
+              ref.current.setColorAt(index, new THREE.Color(0x00ff00));
             }
-            if (distance > 0 && distance < visualRange) {
-              if (debug && other.isMain && !boid.isMain) {
-                ref.current.setColorAt(index, new THREE.Color(0x00ff00));
-              }
-              if (distance < minDistance) {
-                close.add(boid.position).sub(other.position);
-              }
-              center.add(other.position);
-              avgVel.add(other.velocity);
-              neighbours++;
+            if (distance < minDistance) {
+              close.add(boid.position).sub(other.position);
             }
+            center.add(other.position);
+            avgVel.add(other.velocity);
+            neighbours++;
           }
         }
       }
