@@ -322,7 +322,7 @@ function Boids({
       args={[null, null, count]}
     >
       <coneGeometry args={[boidScale / 3, boidScale]} />
-      {_3D ? <meshStandardMaterial /> : <meshBasicMaterial />}
+      {_3D ? <meshStandardMaterial roughness={0.5} /> : <meshBasicMaterial />}
     </instancedMesh>
   );
 }
