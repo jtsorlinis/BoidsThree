@@ -44,6 +44,17 @@ function Boids({
   const gridDimZ = Math.floor((zBound * 2) / gridCellSize) + 20;
   const gridTotalCells = gridDimX * gridDimY * gridDimZ;
 
+  document.addEventListener("keydown", (e) => {
+    e.preventDefault();
+    if (e.code == "Space") {
+      boids.current.forEach((boid) => {
+        boid.velocity.x = Math.random() - 0.5;
+        boid.velocity.y = Math.random() - 0.5;
+        boid.velocity.z = Math.random() - 0.5;
+      });
+    }
+  });
+
   // Generate boids
   useEffect(() => {
     boids.current = [];
